@@ -17,6 +17,9 @@
 wn.provide('erpnext.module_page');
 
 erpnext.module_page.setup_page = function(module, wrapper) {
+	wrapper.appframe = new wn.ui.AppFrame($(wrapper).find('.appframe-area'), 
+		module=='HR' ? 'Human Resources' : module);
+
 	erpnext.module_page.hide_links(wrapper);
 	erpnext.module_page.make_list(module, wrapper);
 	$(wrapper).find("a[title]").tooltip({
