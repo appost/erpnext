@@ -9,7 +9,10 @@ def execute():
 			filename = d[1].split(',')[1]
 		
 			from webnotes.utils import file_manager
-			fn, content = file_manager.get_file(filename)
+			try:
+				fn, content = file_manager.get_file(filename)
+			except IOError, e:
+				continue
 		
 			if not isinstance(content, basestring) and hasattr(content, 'tostring'):
 				content = content.tostring()

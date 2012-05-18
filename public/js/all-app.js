@@ -729,8 +729,8 @@ new wn.views.DocListView(route[1]);});}}
 wn.views.DocListView=wn.ui.Listing.extend({init:function(doctype){this.doctype=doctype;this.label=get_doctype_label(doctype);this.label=(this.label.toLowerCase().substr(-4)=='list')?this.label:(this.label+' List');this.make_page();this.setup();},make_page:function(){var me=this;var page_name=wn.get_route_str();var page=wn.container.add_page(page_name);wn.container.change_to(page_name);this.$page=$(page);this.$page.html(repl('<div class="layout-wrapper layout-wrapper-background">\
    <div class="appframe-area"></div>\
    <div class="layout-main-section">\
-    <h1>%(label)s</h1>\
-    <hr>\
+    <!--<h1>%(label)s</h1>\
+    <hr>-->\
     <div class="wnlist-area"><div class="help">Loading...</div></div>\
    </div>\
    <div class="layout-side-section">\
@@ -742,7 +742,7 @@ wn.views.DocListView=wn.ui.Listing.extend({init:function(doctype){this.doctype=d
     </div>\
    </div>\
    <div style="clear: both"></div>\
-  </div>',{label:this.label}));this.appframe=new wn.ui.AppFrame(this.$page.find('.appframe-area'));wn.views.breadcrumbs($('<span>').appendTo(this.appframe.$titlebar),wn.model.get('DocType',this.doctype).get('module'));},setup:function(){var me=this;me.can_delete=wn.model.can_delete(me.doctype);me.meta=wn.model.get('DocType',me.doctype);me.$page.find('.wnlist-area').empty(),me.setup_docstatus_filter();me.setup_listview();me.init_list();me.init_stats();me.make_report_button();me.add_delete_option();},make_report_button:function(){var me=this;if(wn.boot.profile.can_get_report.indexOf(this.doctype)!=-1){this.appframe.add_button('Build Report',function(){wn.set_route('Report2',me.doctype);},'icon-th')}},setup_docstatus_filter:function(){var me=this;this.can_submit=$.map(me.meta.get({doctype:'DocPerm'}),function(doc){return doc.get('submit')?1:null;}).length;if(this.can_submit){this.$page.find('.show-docstatus').removeClass('hide');this.$page.find('.show-docstatus input').click(function(){me.run();})}},setup_listview:function(){if(this.meta.get('__listjs')){eval(this.meta.get('__listjs'));this.listview=new wn.doclistviews[this.doctype](this);}else{this.listview=new wn.views.ListView(this);}
+  </div>',{label:this.label}));this.appframe=new wn.ui.AppFrame(this.$page.find('.appframe-area'));wn.views.breadcrumbs($('<span>').appendTo(this.appframe.$titlebar),wn.model.get('DocType',this.doctype).get('module'),this.doctype);},setup:function(){var me=this;me.can_delete=wn.model.can_delete(me.doctype);me.meta=wn.model.get('DocType',me.doctype);me.$page.find('.wnlist-area').empty(),me.setup_docstatus_filter();me.setup_listview();me.init_list();me.init_stats();me.make_report_button();me.add_delete_option();},make_report_button:function(){var me=this;if(wn.boot.profile.can_get_report.indexOf(this.doctype)!=-1){this.appframe.add_button('Build Report',function(){wn.set_route('Report2',me.doctype);},'icon-th')}},setup_docstatus_filter:function(){var me=this;this.can_submit=$.map(me.meta.get({doctype:'DocPerm'}),function(doc){return doc.get('submit')?1:null;}).length;if(this.can_submit){this.$page.find('.show-docstatus').removeClass('hide');this.$page.find('.show-docstatus input').click(function(){me.run();})}},setup_listview:function(){if(this.meta.get('__listjs')){eval(this.meta.get('__listjs'));this.listview=new wn.doclistviews[this.doctype](this);}else{this.listview=new wn.views.ListView(this);}
 this.listview.parent=this;},init_list:function(){this.make({method:'webnotes.widgets.doclistview.get',get_args:this.get_args,parent:this.$page.find('.wnlist-area'),start:0,page_length:20,show_filters:true,new_doctype:this.doctype,allow_delete:true,no_result_message:this.make_no_result(),columns:this.listview.fields});this.run();},make_no_result:function(){return repl('<div class="well"><p>No %(doctype_label)s found</p>\
   %(description)s\
   <hr>\
@@ -801,7 +801,7 @@ for(key in data){if(data[key]==null){data[key]='';}}},add_user_tags:function(par
  */
 wn.provide('wn.views.formview');wn.views.formview={show:function(dt,dn){wn.model.with_doctype(dt,function(){wn.model.with_doc(dt,dn,function(dn,r){if(r&&r['403'])return;if(!(wn.model.get(dt,dn))){wn.container.change_to('404');return;}
 var page_name=wn.get_route_str();if(wn.pages[page_name]){wn.container.change_to(page_name);}else{new wn.views.FormView(dt,dn);}});})},create:function(dt){var new_name=LocalDB.create(dt);wn.set_route('Form',dt,new_name);}}
-wn.views.FormView=Class.extend({init:function(doctype,name){this.make_page();wn.views.breadcrumbs($(this.page).find('.appframe-title'),wn.model.get_value('DocType',doctype,'module'),doctype,name);this.form=new wn.ui.Form({doctype:doctype,name:name,parent:this.$w});},make_page:function(){var page_name=wn.get_route_str();this.page=wn.container.add_page(page_name);wn.ui.make_app_page({parent:this.page});wn.container.change_to(page_name);this.$w=$(this.page).find('.layout-main-section');}});wn.ui.Form=Class.extend({init:function(opts){$.extend(this,opts);this.doc=wn.model.get(this.doctype,this.name);this.meta=wn.model.get('DocType',this.doctype);this.controls={};this.fields=$.map(this.meta.get('DocField',{}),function(d){return d.fields;});this.make_form();this.listen();},make_form:function(){var me=this;this.$form=$('<form class="form-horizontal">').appendTo(this.parent);if(this.fields[0].fieldtype!='Section Break'){me.make_fieldset('_first_section');}
+wn.views.FormView=Class.extend({init:function(doctype,name){this.make_page();wn.views.breadcrumbs($('<span>').appendTo($(this.page).find('.appframe-titlebar')),wn.model.get_value('DocType',doctype,'module'),doctype,name);this.form=new wn.ui.Form({doctype:doctype,name:name,parent:this.$w});},make_page:function(){var page_name=wn.get_route_str();this.page=wn.container.add_page(page_name);wn.ui.make_app_page({parent:this.page});wn.container.change_to(page_name);this.$w=$(this.page).find('.layout-main-section');}});wn.ui.Form=Class.extend({init:function(opts){$.extend(this,opts);this.doc=wn.model.get(this.doctype,this.name);this.meta=wn.model.get('DocType',this.doctype);this.controls={};this.fields=$.map(this.meta.get('DocField',{}),function(d){return d.fields;});this.make_form();this.listen();},make_form:function(){var me=this;this.$form=$('<form class="form-horizontal">').appendTo(this.parent);if(this.fields[0].fieldtype!='Section Break'){me.make_fieldset('_first_section');}
 $.each(this.fields,function(i,df){if(df.fieldtype=='Section Break'){me.make_fieldset(df.fieldname,df.label);}else{me.controls[df.fieldname]=wn.ui.make_control({docfield:df,parent:me.last_fieldset,doctype:me.doctype,docname:me.name});}});},make_fieldset:function(name,legend){var $fset=$('<fieldset data-name="'+name+'"></fieldset>').appendTo(this.$form);if(legend){$('<legend>').text(legend).appendTo($fset);}
 this.last_fieldset=$fset;},listen:function(){var me=this;if(this.doctype&&this.name){$(document).bind(wn.model.event_name(this.doctype,this.name),function(ev,key,val){if(me.controls[key])me.controls[key].set_input(val);});}}});wn.ui.make_control=function(opts){control_map={'Check':wn.ui.CheckControl,'Data':wn.ui.Control,'Link':wn.ui.LinkControl,'Select':wn.ui.SelectControl,'Table':wn.ui.GridControl,'Text':wn.ui.TextControl,'Button':wn.ui.ButtonControl}
 if(control_map[opts.docfield.fieldtype]){return new control_map[opts.docfield.fieldtype](opts);}else{return null;}}
@@ -1154,12 +1154,11 @@ wn.ui.toolbar.show_about=function(){try{wn.ui.misc.about();}catch(e){console.log
 return false;}
 
 /*
- *	lib/js/wn/views/breadcrumbs.js
+ *	lib/js/wn/ui/breadcrumbs.js
  */
-wn.provide('wn.views');wn.views.breadcrumbs=function(parent,module,doctype,name){$(parent).empty();var $bspan=$(repl('<span class="breadcrumbs">\
-  <a href="#%(home_page)s">Home</a></span>',{home_page:wn.boot.home_page}));if(module&&wn.modules&&wn.modules[module]){$bspan.append(repl(' / <a href="#!%(module_page)s">%(module)s Home</a>',{module:module,module_page:wn.modules[module]}))}
-if(doctype&&(locals.DocType[doctype]&&!locals.DocType[doctype].issingle)){$bspan.append(repl(' / <a href="#!List/%(doctype)s">%(doctype)s</a>',{doctype:doctype}))}
-if(name){$bspan.append(' / '+name.bold())}
+wn.provide('wn.views');wn.views.breadcrumbs=function(parent,module,doctype,name){$(parent).empty();var $bspan=$('<span class="breadcrumbs"></span>');if(name){$bspan.append('<span class="appframe-title">'+name+'</span>');}else if(doctype){$bspan.append('<span class="appframe-title">'+doctype+' List </span>');}else if(module){$bspan.append('<span class="appframe-title">'+module+'</span>');}
+if(name&&doctype&&(!wn.model.get_value('DocType',doctype,'issingle'))){$bspan.append(repl(' in <a href="#!List/%(doctype)s">%(doctype)s List</a>',{doctype:doctype}))}
+if(doctype&&module&&wn.modules&&wn.modules[module]){$bspan.append(repl(' in <a href="#!%(module_page)s">%(module)s</a>',{module:module,module_page:wn.modules[module]}))}
 $bspan.appendTo(parent);}
 /*
  *	lib/js/wn/app.js

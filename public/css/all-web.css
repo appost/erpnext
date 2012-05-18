@@ -2477,6 +2477,8 @@ div.stat-bar {
 .breadcrumbs a {
 	color: #555;
 	text-shadow: 0px 1px 1px #fff;
+	text-decoration: underline;
+	font-weight: 400;
 }
 
 div.appframe-titlebar {
@@ -2496,8 +2498,6 @@ div.appframe-titlebar {
 	-moz-border-radius: 5px 5px 0px 0px;
 
 	text-shadow: 0px 1px 1px #fff;
-	font-size: 120%;
-	font-weight: bold;
 	color: #555;
 }
 
@@ -2506,6 +2506,11 @@ div.appframe-toolbar {
 	background: #eeeeee;
 	border-top: 1px solid #f8f8f8;
 	border-bottom: 1px solid #ccc;
+}
+
+span.appframe-title {
+	font-size: 160%;
+	font-weight: bold;	
 }
 
 /*
